@@ -22,11 +22,21 @@ let infoSvSchema = new Schema({
     jobPa: String,
     jobMe: String,
     addressPa: String,
-    addressMe: String
+    addressMe: String,
+    malop: String
+})
+
+let accountSchema = new Schema({
+    username: String,
+    password: String,
+    role: String,
+    malop: String
 })
 
 const infoSvModel = mongoose.model('infosv', infoSvSchema)
+const accountModel = mongoose.model('account', accountSchema)
 
 module.exports = {
-    infoSvModel
+    infoSvModel,
+    accountModel
 }

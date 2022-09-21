@@ -6,7 +6,7 @@ let connectDB = async () => {
         await mongoose.connect('mongodb://localhost:27017/QLSV');
         console.log("Connect DB successfully!")
     } catch (err) {
-        console.log("Error, connect DB")
+        console.log("Error, connect DB", err)
     }
 }
 

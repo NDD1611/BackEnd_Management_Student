@@ -1,12 +1,12 @@
 
 
+// const res = require("express/lib/response.js")
 const Service = require("../service/service.js")
 
 let reateOneSV = async (req, res) => {
     try {
         let infosv = {
-            ...req.body,
-            password: '123456'
+            ...req.body
         }
         let response = await Service.createOneSvService(infosv)
         res.json(response)
@@ -38,8 +38,33 @@ let getAllStudent = async (req, res) => {
     }
 }
 
+let editSv = async (req, res) => {
+    let result = await Service.editSv(req.body)
+    res.json(result)
+}
+
+let deleteSv = async (req, res) => {
+    let result = await Service.deleteSv(req.body.id)
+    res.json(result)
+
+}
+
+let login = async (req, res) => {
+    let result = await Service.login(req.body)
+    // console.log(result)
+    res.json(result)
+}
+
+let createAccount = async (req, res) => {
+    let result = await Service.createAccount(req.body)
+    res.json(result)
+}
 
 module.exports = {
     reateOneSV,
-    getAllStudent
+    getAllStudent,
+    editSv,
+    deleteSv,
+    login,
+    createAccount
 }
