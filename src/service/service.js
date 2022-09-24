@@ -78,7 +78,7 @@ let deleteSv = (id) => {
             await infoSvModel.deleteOne({ _id: id })
             resolve({
                 errCode: 0,
-                mes: "Delete success"
+                mes: "Xóa Sinh Viên Thành Công"
             })
         } catch (err) {
             reject(err)
@@ -101,26 +101,24 @@ let login = async (info) => {
                     }
                     resolve({
                         errCode: 0,
-                        mes: "Login success",
+                        mes: "Đăng Nhập Thành Công",
                         data: dataRes
                     })
                 } else {
                     resolve({
                         errCode: 3,
-                        mes: 'Wrong password'
+                        mes: 'Sai Mật Khẩu'
                     })
                 }
             }
             resolve({
                 errCode: 2,
-                mes: "Wrong MSSV"
+                mes: "Tài Khoản Không Tồn Tại"
             })
-
-
         } catch (err) {
             reject({
                 errCode: 2,
-                mes: "Error Login from server"
+                mes: "Lỗi Server"
             })
         }
     })

@@ -27,6 +27,7 @@ let infoSvSchema = new Schema({
 })
 
 let accountSchema = new Schema({
+    name: String,
     username: String,
     password: String,
     role: String,
