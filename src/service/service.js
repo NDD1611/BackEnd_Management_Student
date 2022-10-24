@@ -1,10 +1,9 @@
 
-const { infoSvModel, accountModel, infoCVHTModel, lopHocModel } = require('../config/SchemaDB.js')
+const { infoSvModel, accountModel, infoCVHTModel, lopHocModel, hocPhanModel, announceModel, diemRLModel } = require('../config/SchemaDB.js')
 
 let createOneSvService = (info) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // console.log(info)
             let sv = await infoSvModel.findOne({ masv: info.masv })
             if (sv == null) {
                 await infoSvModel.create(info)
@@ -39,7 +38,6 @@ let getAllStudentLop = async (malop) => {
         data.map((sv) => {
             sv.password = ''
         })
-        // console.log(data)
         return data;
     } catch (err) {
         console.log("Error getAllStudent Service", err)
@@ -49,10 +47,8 @@ let getAllStudentLop = async (malop) => {
 let editSv = (sv) => {
     return new Promise(async (resolve, reject) => {
         try {
-            // console.log(sv)
             let res = await infoSvModel.findByIdAndUpdate({ _id: sv._id }, sv)
             if (res) {
-                // console.log(res)
                 resolve({
                     errCode: 0,
                     mes: "Update Success"
@@ -76,9 +72,7 @@ let editCVHT = (info) => {
     return new Promise(async (resolve, reject) => {
         try {
             let res = await infoCVHTModel.findByIdAndUpdate({ _id: info._id }, info)
-            console.log(res)
             if (res) {
-                // console.log(res)
                 resolve({
                     errCode: 0,
                     mes: "Update Success"
@@ -90,7 +84,6 @@ let editCVHT = (info) => {
                 })
             }
         } catch (err) {
-            console.log(err)
             reject({
                 errCode: 2,
                 mes: "Errer from Server"
@@ -130,6 +123,12 @@ let login = async (info) => {
                     let dataRes
                     if (account.role == 'student') {
                         dataRes = await infoSvModel.findOne({ masv: info.masv })
+                        let infoLop = await lopHocModel.findOne({ malop: dataRes.malop })
+                        dataRes = {
+                            ...dataRes._doc,
+                            khoahoc: infoLop.khoahoc,
+                            namhoc: infoLop.namhoc
+                        }
                     } else if (account.role == 'teacher') {
                         dataRes = await infoCVHTModel.findOne({ macb: info.masv })
                         dataRes.password = ''
@@ -163,7 +162,6 @@ let login = async (info) => {
 }
 
 let createAccount = (data) => {
-    console.log(data)
     return new Promise(async (resolve, reject) => {
         try {
             let user = await accountModel.findOne({ username: data.username })
@@ -212,7 +210,6 @@ let changePass = (data) => {
                     })
                 }
             }
-            console.log(info)
         } catch (err) {
             reject(err)
         }
@@ -262,9 +259,294 @@ let getAllClass = (data) => {
             })
         }
     })
-    console.log(data)
 }
 
+let getFullInfoSV = async (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let dataRes = await infoSvModel.findOne({ masv: data.masv })
+            let infoLop = await lopHocModel.findOne({ malop: dataRes.malop })
+            dataRes = {
+                ...dataRes._doc,
+                khoahoc: infoLop.khoahoc,
+                namhoc: infoLop.namhoc
+            }
+            resolve({
+                errCode: 0,
+                data: dataRes
+            })
+        } catch (err) {
+            reject({
+                errCode: 2,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+
+let themhp = async (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let hocphan = await hocPhanModel.findOne({
+                masv: data.masv,
+                namhoc: data.namhoc,
+                hocki: data.hocki,
+                mahp: data.mahp
+            })
+            if (hocphan) {
+                let hocki = data.hocki
+                if (hocki == 3) {
+                    hocki = "Hè"
+                }
+                resolve({
+                    errCode: 2,
+                    mes: `Học phần đã tồn tại ở học kì ${hocki} của năm học ${data.namhoc} - ${data.namhoc + 1}`
+                })
+            } else {
+                await hocPhanModel.create(data)
+                resolve({
+                    errCode: 0,
+                    mes: "Thêm học phần thành công"
+                })
+            }
+
+        } catch (err) {
+            reject({
+                errCode: 2,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+let getDiemHP = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let listHP = await hocPhanModel.find(data)
+            if (listHP) {
+                resolve({
+                    errCode: 0,
+                    mes: "success",
+                    data: listHP
+                })
+            }
+            resolve({
+                errCode: 1,
+                mes: "fail"
+            })
+        } catch (err) {
+            reject({
+                errCode: 2,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+
+let deleteDiemHP = (hp) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await hocPhanModel.deleteOne(hp)
+            resolve({
+                errCode: 0,
+                mes: "success"
+            })
+        } catch (err) {
+            reject({
+                errCode: 2,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+
+let updateDiemHP = async (masv) => { // update lai diem trong infoSvModel
+    try {
+        let listHP = await hocPhanModel.find({ masv: masv })
+        let tongdiem = 0
+        let tongtctl = 0
+        let tongtc = 0
+        for (let hp of listHP) {
+            let diem4
+            if (hp.diemchu == 'A') {
+                diem4 = 4.0
+            } else if (hp.diemchu == "B+") {
+                diem4 = 3.5
+            } else if (hp.diemchu == "B") {
+                diem4 = 3.0
+            } else if (hp.diemchu == "C+") {
+                diem4 = 2.5
+            } else if (hp.diemchu == "C") {
+                diem4 = 2.0
+            } else if (hp.diemchu == "D+") {
+                diem4 = 1.5
+            } else if (hp.diemchu == "D") {
+                diem4 = 1
+            }
+            tongtc = tongtc + hp.sotc
+            if (hp.diemchu != "F" && hp.dieukien == false) {
+                tongtctl = tongtctl + hp.sotc
+                tongdiem = tongdiem + diem4 * hp.sotc
+            }
+        }
+        let diemtb = (tongdiem / tongtctl).toFixed(2)
+        let infosv = await infoSvModel.findOne({ masv: masv })
+        infosv.diemtb = diemtb
+        infosv.tinchi = tongtc
+        await infoSvModel.updateOne(infosv)
+    } catch (err) {
+        console.log(err, "updateDiemHP")
+    }
+}
+
+let getFullHP = (masv) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let listHP = await hocPhanModel.find(masv)
+            if (listHP) {
+                resolve({
+                    errCode: 0,
+                    mes: "success",
+                    data: listHP
+                })
+            }
+            resolve({
+                errCode: 1,
+                mes: "fail"
+            })
+        } catch (err) {
+            reject({
+                errCode: 2,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+
+let editLop = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let info = {
+                malop: data.malop,
+                macb: data.macb
+            }
+            let lop = await lopHocModel.findOneAndUpdate(info, data)
+            if (lop) {
+                resolve({
+                    errCode: 0,
+                    mes: "success",
+                })
+            }
+            resolve({
+                errCode: 1,
+                mes: "fail"
+            })
+        } catch (err) {
+            reject({
+                errCode: 2,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+
+let createAnnounce = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await announceModel.create(data)
+            resolve({
+                errCode: 0,
+                mes: ''
+            })
+        } catch (err) {
+            reject({
+                errCode: 2,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+let getAllAnnounce = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let res = await announceModel.find(data)
+            if (res) {
+                resolve({
+                    errCode: 0,
+                    mes: "success",
+                    data: res
+                })
+            }
+        } catch (err) {
+            reject({
+                errCode: 3,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+let getInfoCVHTFromMaLop = (malop) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let infoLop = await lopHocModel.findOne(malop)
+            let macb = infoLop.macb
+            let infoCV = await infoCVHTModel.findOne({ macb: macb })
+            if (infoCV) {
+                resolve({
+                    errCode: 0,
+                    mes: "success",
+                    data: infoCV
+                })
+            }
+        } catch (err) {
+            reject({
+                errCode: 3,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+let themDRL = (diemRL) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let info = {
+                masv: diemRL.masv,
+                hocki: diemRL.hocki,
+                namhoc: diemRL.namhoc
+            }
+            let data = await diemRLModel.findOne(info)
+            if (data) {
+                await diemRLModel.findOneAndUpdate(info, diemRL)
+            } else {
+                await diemRLModel.create(diemRL)
+            }
+            resolve({
+                errCode: 0,
+                mes: 'success'
+            })
+        } catch (err) {
+            reject({
+                errCode: 3,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+let getDRL = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let DRL = await diemRLModel.findOne(data)
+            resolve({
+                errCode: 0,
+                data: DRL
+            })
+        } catch (err) {
+            reject({
+                errCode: 3,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
 module.exports = {
     createOneSvService,
     getAllStudentLop,
@@ -276,5 +558,17 @@ module.exports = {
     changePass,
     editCVHT,
     addClass,
-    getAllClass
+    getAllClass,
+    getFullInfoSV,
+    themhp,
+    getDiemHP,
+    deleteDiemHP,
+    updateDiemHP,
+    getFullHP,
+    editLop,
+    createAnnounce,
+    getAllAnnounce,
+    getInfoCVHTFromMaLop,
+    themDRL,
+    getDRL
 }

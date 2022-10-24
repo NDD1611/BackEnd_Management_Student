@@ -15,6 +15,17 @@ let webInItRouter = (app) => {
     app.post("/changepass", controller.changePass)
     app.post("/cvht/addclass", controller.addClass)
     app.post("/cvht/getclass", controller.getAllClass)
+    app.post("/getfullinfosv", controller.getFullInfoSV)
+    app.post("/sv/themhp", controller.themhp)
+    app.post("/getdiemhpt", controller.getDiemHP)
+    app.post("/deletediemhpt", controller.deleteDiemHP)
+    app.post("/getfullhp", controller.getFullHP)
+    app.post("/cvht/editlop", controller.editLop)
+    app.post("/createannouce", controller.createAnnounce)
+    app.post("/getallannounce", controller.getAllAnnounce)
+    app.post("/getinfocvhtfrommalop", controller.getInfoCVHTFromMaLop)
+    app.post("/adddiemrenluyen", controller.themDRL)
+    app.post("/getdiemrenluyen", controller.getDRL)
 }
 
 module.exports = webInItRouter;
