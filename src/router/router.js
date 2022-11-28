@@ -26,6 +26,10 @@ let webInItRouter = (app) => {
     app.post("/getinfocvhtfrommalop", controller.getInfoCVHTFromMaLop)
     app.post("/adddiemrenluyen", controller.themDRL)
     app.post("/getdiemrenluyen", controller.getDRL)
+    app.post("/addHD", controller.addHD)
+    app.post("/getHD", controller.getHD)
+    app.post("/editHD", controller.editHD)
+    app.post("/delHD", controller.delHD)
 }
 
 module.exports = webInItRouter;

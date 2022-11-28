@@ -1,6 +1,7 @@
 
 
 // const res = require("express/lib/response.js")
+const { createConnection } = require("mongoose")
 const Service = require("../service/service.js")
 
 let reateOneSV = async (req, res) => {
@@ -110,6 +111,7 @@ let themhp = async (req, res) => {
     try {
         let result = await Service.themhp(req.body)
         if (result.errCode == 0) {
+            // console.log(req.body.masv)
             await Service.updateDiemHP(req.body.masv)
         }
         res.json(result)
@@ -203,6 +205,42 @@ let getDRL = async (req, res) => {
         console.log("controleer getDRL", err)
     }
 }
+let addHD = async (req, res) => {
+    try {
+        let data = req.body
+        let result = await Service.addHD(data)
+        res.json(result)
+    } catch (err) {
+        console.log("controleer addHD", err)
+    }
+}
+let getHD = async (req, res) => {
+    try {
+        let masv = req.body
+        let result = await Service.getHD(masv)
+        res.json(result)
+    } catch (err) {
+        console.log("controleer getHD", err)
+    }
+}
+let editHD = async (req, res) => {
+    try {
+        let data = req.body
+        let result = await Service.editHD(data)
+        res.json(result)
+    } catch (err) {
+        console.log("controleer editHD", err)
+    }
+}
+let delHD = async (req, res) => {
+    try {
+        let data = req.body
+        let result = await Service.delHD(data)
+        res.json(result)
+    } catch (err) {
+        console.log("controleer delHD", err)
+    }
+}
 module.exports = {
     reateOneSV,
     getAllStudentLop,
@@ -224,5 +262,9 @@ module.exports = {
     getAllAnnounce,
     getInfoCVHTFromMaLop,
     themDRL,
-    getDRL
+    getDRL,
+    addHD,
+    getHD,
+    editHD,
+    delHD
 }

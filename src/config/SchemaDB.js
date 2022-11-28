@@ -83,6 +83,13 @@ let diemRLSchema = new Schema({
 })
 
 
+let hoatDongSchema = new Schema({
+    masv: String,
+    namhoc: Number,
+    hocki: Number,
+    tenHD: String,
+})
+
 const infoSvModel = mongoose.model('infosv', infoSvSchema)
 const accountModel = mongoose.model('account', accountSchema)
 const infoCVHTModel = mongoose.model('infocvht', infoCVHTSchema)
@@ -90,6 +97,7 @@ const lopHocModel = mongoose.model('lophoc', lopHocSchema)
 const hocPhanModel = mongoose.model('hocphan', hocphanSchema)
 const announceModel = mongoose.model('announce', announceSchema)
 const diemRLModel = mongoose.model('diemrenluyen', diemRLSchema)
+const hoatdongModel = mongoose.model('hoatdong', hoatDongSchema)
 
 module.exports = {
     infoSvModel,
@@ -98,5 +106,6 @@ module.exports = {
     lopHocModel,
     hocPhanModel,
     announceModel,
-    diemRLModel
+    diemRLModel,
+    hoatdongModel
 }

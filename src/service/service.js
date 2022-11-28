@@ -1,5 +1,5 @@
 
-const { infoSvModel, accountModel, infoCVHTModel, lopHocModel, hocPhanModel, announceModel, diemRLModel } = require('../config/SchemaDB.js')
+const { infoSvModel, accountModel, infoCVHTModel, lopHocModel, hocPhanModel, announceModel, diemRLModel, hoatdongModel } = require('../config/SchemaDB.js')
 
 let createOneSvService = (info) => {
     return new Promise(async (resolve, reject) => {
@@ -392,7 +392,8 @@ let updateDiemHP = async (masv) => { // update lai diem trong infoSvModel
         let infosv = await infoSvModel.findOne({ masv: masv })
         infosv.diemtb = diemtb
         infosv.tinchi = tongtc
-        await infoSvModel.updateOne(infosv)
+        await infoSvModel.deleteOne(infosv)
+        await infoSvModel.create(infosv)
     } catch (err) {
         console.log(err, "updateDiemHP")
     }
@@ -547,6 +548,79 @@ let getDRL = (data) => {
         }
     })
 }
+let addHD = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log(data)
+            await hoatdongModel.create(data)
+            resolve({
+                errCode: 0,
+                mes: "add success"
+            })
+        } catch (err) {
+            reject({
+                errCode: 3,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+let getHD = (masv) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let listHD = await hoatdongModel.find(masv)
+            resolve({
+                errCode: 0,
+                mes: "",
+                data: listHD
+            })
+        } catch (err) {
+            reject({
+                errCode: 3,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+let editHD = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let newData = {
+                masv: data.masv,
+                namhoc: data.namhoc,
+                hocki: data.hocki,
+                tenHD: data.tenHD
+            }
+            await hoatdongModel.findOneAndUpdate({ _id: data._id }, newData)
+            resolve({
+                errCode: 0,
+                mes: "",
+            })
+        } catch (err) {
+            reject({
+                errCode: 3,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
+let delHD = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log(data)
+            await hoatdongModel.findOneAndDelete({ _id: data._id })
+            resolve({
+                errCode: 0,
+                mes: "",
+            })
+        } catch (err) {
+            reject({
+                errCode: 3,
+                mes: "Lỗi Server"
+            })
+        }
+    })
+}
 module.exports = {
     createOneSvService,
     getAllStudentLop,
@@ -570,5 +644,9 @@ module.exports = {
     getAllAnnounce,
     getInfoCVHTFromMaLop,
     themDRL,
-    getDRL
+    getDRL,
+    addHD,
+    getHD,
+    editHD,
+    delHD
 }
