@@ -1,49 +1,5 @@
 
-
-// const res = require("express/lib/response.js")
-const { createConnection } = require("mongoose")
 const Service = require("../service/service.js")
-
-let reateOneSV = async (req, res) => {
-    try {
-        let infosv = {
-            ...req.body
-        }
-        let response = await Service.createOneSvService(infosv)
-        res.json(response)
-    } catch (err) {
-        console.log("Error, controller", err)
-    }
-}
-
-let getAllStudentLop = async (req, res) => {
-    try {
-        let malop = req.body.malop
-        let data = await Service.getAllStudentLop(malop)
-        if (data) {
-            res.json({
-                errCode: 0,
-                mes: "Get success",
-                data: data
-            })
-        } else {
-            res.json({
-                errCode: 1,
-                mes: "Not found data"
-            })
-        }
-    } catch (err) {
-        res.json({
-            errCode: 3,
-            mes: "Error, Server"
-        })
-    }
-}
-
-let editSv = async (req, res) => {
-    let result = await Service.editSv(req.body)
-    res.json(result)
-}
 
 let editCVHT = async (req, res) => {
     try {
@@ -54,18 +10,17 @@ let editCVHT = async (req, res) => {
     }
 }
 
-let deleteSv = async (req, res) => {
-    let result = await Service.deleteSv(req.body.id)
-    if (result.errCode == 0) {
-        await Service.deleteAccount(req.body.masv)
-    }
-    res.json(result)
-
-}
-
 let login = async (req, res) => {
-    let result = await Service.login(req.body)
-    res.json(result)
+    try {
+        let result = await Service.login(req.body)
+        res.json(result)
+    } catch (err) {
+        console.log(err)
+        res.json({
+            errCode: 1,
+            mes: "tài khoản không tồn tại"
+        })
+    }
 }
 
 let createAccount = async (req, res) => {
@@ -89,35 +44,24 @@ let addClass = async (req, res) => {
 
 let getAllClass = async (req, res) => {
     try {
-        let result = await Service.getAllClass(req.body)
+        let result = await Service.getAllClass(req.params.consultantID)
         res.json(result)
-
     } catch (err) {
         console.log("controleer getAllClass", err)
     }
 }
 
-let getFullInfoSV = async (req, res) => {
-    try {
-        let result = await Service.getFullInfoSV(req.body)
-        res.json(result)
-
-    } catch (err) {
-        console.log("controleer getFullInfoSV", err)
-    }
-}
 
 let themhp = async (req, res) => {
     try {
         let result = await Service.themhp(req.body)
         if (result.errCode == 0) {
-            // console.log(req.body.masv)
             await Service.updateDiemHP(req.body.masv)
         }
         res.json(result)
 
     } catch (err) {
-        console.log("controleer getFullInfoSV", err)
+        console.log("controleer theHp", err)
     }
 }
 
@@ -144,7 +88,7 @@ let deleteDiemHP = async (req, res) => {
 
 let getFullHP = async (req, res) => {
     try {
-        let result = await Service.getFullHP(req.body)
+        let result = await Service.getFullHP(req.params.studentID)
         res.json(result.data)
     } catch (err) {
         console.log("controleer getFullHP", err)
@@ -154,6 +98,14 @@ let getFullHP = async (req, res) => {
 let editLop = async (req, res) => {
     try {
         let result = await Service.editLop(req.body)
+        res.json(result)
+    } catch (err) {
+        console.log("controleer editLop", err)
+    }
+}
+let delLop = async (req, res) => {
+    try {
+        let result = await Service.delLop(req.body)
         res.json(result)
     } catch (err) {
         console.log("controleer editLop", err)
@@ -170,7 +122,7 @@ let createAnnounce = async (req, res) => {
 }
 let getAllAnnounce = async (req, res) => {
     try {
-        let result = await Service.getAllAnnounce(req.body)
+        let result = await Service.getAllAnnounce(req.params.classID)
         res.json(result)
 
     } catch (err) {
@@ -179,7 +131,7 @@ let getAllAnnounce = async (req, res) => {
 }
 let getInfoCVHTFromMaLop = async (req, res) => {
     try {
-        let result = await Service.getInfoCVHTFromMaLop(req.body)
+        let result = await Service.getInfoCVHTFromMaLop(req.params.classID)
         res.json(result)
 
     } catch (err) {
@@ -187,25 +139,7 @@ let getInfoCVHTFromMaLop = async (req, res) => {
     }
 }
 
-let themDRL = async (req, res) => {
-    try {
-        let result = await Service.themDRL(req.body)
-        res.json(result)
-
-    } catch (err) {
-        console.log("controleer themDRL", err)
-    }
-}
-let getDRL = async (req, res) => {
-    try {
-        let result = await Service.getDRL(req.body)
-        res.json(result)
-
-    } catch (err) {
-        console.log("controleer getDRL", err)
-    }
-}
-let addHD = async (req, res) => {
+let addActivity = async (req, res) => {
     try {
         let data = req.body
         let result = await Service.addHD(data)
@@ -214,16 +148,16 @@ let addHD = async (req, res) => {
         console.log("controleer addHD", err)
     }
 }
-let getHD = async (req, res) => {
+let getActivity = async (req, res) => {
     try {
-        let masv = req.body
+        let masv = req.params.masv
         let result = await Service.getHD(masv)
         res.json(result)
     } catch (err) {
         console.log("controleer getHD", err)
     }
 }
-let editHD = async (req, res) => {
+let editActivity = async (req, res) => {
     try {
         let data = req.body
         let result = await Service.editHD(data)
@@ -232,7 +166,7 @@ let editHD = async (req, res) => {
         console.log("controleer editHD", err)
     }
 }
-let delHD = async (req, res) => {
+let delActivity = async (req, res) => {
     try {
         let data = req.body
         let result = await Service.delHD(data)
@@ -242,29 +176,24 @@ let delHD = async (req, res) => {
     }
 }
 module.exports = {
-    reateOneSV,
-    getAllStudentLop,
-    editSv,
-    deleteSv,
+
     login,
     createAccount,
     changePass,
     editCVHT,
     addClass,
     getAllClass,
-    getFullInfoSV,
     themhp,
     getDiemHP,
     deleteDiemHP,
     getFullHP,
     editLop,
+    delLop,
     createAnnounce,
     getAllAnnounce,
     getInfoCVHTFromMaLop,
-    themDRL,
-    getDRL,
-    addHD,
-    getHD,
-    editHD,
-    delHD
+    addActivity,
+    getActivity,
+    editActivity,
+    delActivity
 }
